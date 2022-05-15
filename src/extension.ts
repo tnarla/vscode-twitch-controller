@@ -3,6 +3,13 @@ import * as fontList from "font-list";
 import { StatusManager } from "./StatusManager";
 import { RewardsManager } from "./RewardsManager";
 import { AuthManager } from "./AuthManager";
+import PQueue from "p-queue";
+
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
 
 class Extension {
   declare authManager;
@@ -19,6 +26,8 @@ class Extension {
       this.rewardsManager.setup();
     });
 
+    const queue = new PQueue({ concurrency: 1 });
+
     this.rewardsManager.register(
       {
         title: "Change Font",
@@ -26,26 +35,35 @@ class Extension {
         userInputRequired: true,
       },
       async (message) => {
-        const fonts = await fontList.getFonts();
+        return queue.add(async () => {
+          const fonts = await fontList.getFonts();
 
-        const font = fonts.find(
-          (el) =>
-            el.toLowerCase().replace(/["']/g, "") ===
-            message.message.toLowerCase().replace(/["']/g, "")
-        );
+          const font = fonts.find(
+            (el) =>
+              el.toLowerCase().replace(/["']/g, "") ===
+              message.message.toLowerCase().replace(/["']/g, "")
+          );
 
-        if (font) {
+          if (!font) {
+            vscode.window.showInformationMessage(
+              `Twitch Controller: "${message.message}" does not exist`
+            );
+            return "CANCELED";
+          }
+
           vscode.workspace.getConfiguration().update("editor.fontFamily", font);
           vscode.window.showInformationMessage(
             `${message.userDisplayName} changed font to ${font}`
           );
+
+          await sleep(60000);
+
+          vscode.workspace
+            .getConfiguration()
+            .update("editor.fontFamily", "MonoLisa");
+
           return "FULFILLED";
-        } else {
-          vscode.window.showInformationMessage(
-            `Twitch Controller: "${message.message}" does not exist`
-          );
-          return "CANCELED";
-        }
+        });
       }
     );
 

@@ -2,7 +2,7 @@
   "name": "font-changer",
   "displayName": "font-changer",
   "description": "Change fonts via twitch channel points",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "VSCodeFontChanger",
   "engines": {
     "vscode": "^1.54.0"
@@ -48,6 +48,7 @@
     "font-list": "^1.2.12",
     "fonts-installed-osx": "^1.0.0",
     "keytar": "^7.4.0",
+    "p-queue": "^6.6.2",
     "twitch": "^4.5.1",
     "twitch-auth": "^4.5.1",
     "twitch-pubsub-client": "^4.5.1",
