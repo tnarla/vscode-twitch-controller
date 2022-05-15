@@ -28,6 +28,10 @@ class Extension {
 
     const queue = new PQueue({ concurrency: 1 });
 
+    const DEFAULT_FONT = vscode.workspace
+      .getConfiguration()
+      .get<string>("editor.fontFamily");
+
     this.rewardsManager.register(
       {
         title: "Change Font",
@@ -51,7 +55,14 @@ class Extension {
             return "CANCELED";
           }
 
-          vscode.workspace.getConfiguration().update("editor.fontFamily", font);
+          vscode.workspace
+            .getConfiguration()
+            .update(
+              "editor.fontFamily",
+              font,
+              vscode.ConfigurationTarget.Global
+            );
+
           vscode.window.showInformationMessage(
             `${message.userDisplayName} changed font to ${font}`
           );
@@ -60,7 +71,11 @@ class Extension {
 
           vscode.workspace
             .getConfiguration()
-            .update("editor.fontFamily", "MonoLisa");
+            .update(
+              "editor.fontFamily",
+              DEFAULT_FONT,
+              vscode.ConfigurationTarget.Global
+            );
 
           return "FULFILLED";
         });
@@ -81,7 +96,8 @@ class Extension {
             "window.zoomLevel",
             (vscode.workspace
               .getConfiguration()
-              .get<number>("window.zoomLevel") || 1) + ENHANCE_AMOUNT
+              .get<number>("window.zoomLevel") || 1) + ENHANCE_AMOUNT,
+            vscode.ConfigurationTarget.Global
           );
 
         setTimeout(() => {
@@ -91,7 +107,8 @@ class Extension {
               "window.zoomLevel",
               (vscode.workspace
                 .getConfiguration()
-                .get<number>("window.zoomLevel") || 1) - ENHANCE_AMOUNT
+                .get<number>("window.zoomLevel") || 1) - ENHANCE_AMOUNT,
+              vscode.ConfigurationTarget.Global
             );
         }, 10000);
 
